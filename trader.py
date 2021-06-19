@@ -4,9 +4,9 @@ import time
 import datetime
 import sys
 
-trade_ogre_api_key = 'db9a6605a97cc550855146b3d05dde32'
-trade_ogre_secret_key = 'ca195986c18fb9c19dd81d14389630f2'
-COINS = ['RVN', 'LTC', 'XMR', 'ETH', 'DOGE', 'BEAM']
+trade_ogre_api_key = 'add here'
+trade_ogre_secret_key = 'add here'
+COINS = ['GRLC', 'ETH']
 
 debug = '--debug' in sys.argv
 base_url = 'https://tradeogre.com/api/v1'
@@ -104,26 +104,6 @@ class TradeOgre:
 		return prev_orders
 
 
-class Binance:
-
-	def get_market_info(self, coin):
-		'''
-		RVN data at [398]
-		'''
-		api_response = requests.get('https://api.binance.com/api/v1/ticker/24hr')
-
-		for c in json.loads(api_response.content.decode('utf-8')):
-			if c['symbol'] == coin + 'BTC':
-				if debug:
-					timestamp_print(c)
-				return c
-		if debug:
-			timestamp_print(f'Binance.get_market_info("{coin}") returned None!')
-
-	def get_order_book(self, ticker):
-		api_response = requests.get('https://api.binance.com/api/v1/depth', params = {'symbol': ticker, 'limit':100})
-		return json.loads(api_response.content.decode('utf-8'))
-
 
 '''
 
@@ -131,20 +111,17 @@ Create classes with API keys.
 
 '''
 
-binance = Binance()
 trade_ogre = TradeOgre(trade_ogre_api_key, trade_ogre_secret_key)
 
 def get_day_low(coin):
-	binance_day_low = float(binance.get_market_info(coin)['lowPrice'])
 	trade_ogre_day_low = float(trade_ogre.get_market_info(coin)['low'])
 
-	return (binance_day_low + trade_ogre_day_low) / 2
+	return trade_ogre_day_low
 
 def get_day_high(coin):
-	binance_day_hi = float(binance.get_market_info(coin)['highPrice'])
 	trade_ogre_day_hi = float(trade_ogre.get_market_info(coin)['high'])
 
-	return (binance_day_hi + trade_ogre_day_hi) / 2
+	return trade_ogre_day_hi
 
 
 def buy_low(coin):
